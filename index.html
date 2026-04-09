@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pl" class="scroll-smooth" style="background-color:#050505;color:#F5F5F0;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aleksander Kowalski | Fotografia Premium</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <script type="module" src="/src/main.js"></script>
+</head>
+<body class="bg-dark antialiased selection:bg-light selection:text-dark" style="background-color:#050505;">
+
+    <div class="film-grain"></div>
+    <div class="lens-flare" id="lensFlare"></div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block">
+        <div class="cursor-outline-inner"></div>
+    </div>
+
+    <!-- Advanced Camera Viewfinder Loader -->
+    <div id="loader" class="fixed inset-0 bg-dark z-[100] flex items-center justify-center overflow-hidden font-mono text-[10px] sm:text-xs text-white/70 select-none">
+
+        <!-- Viewfinder Corner Brackets -->
+        <div class="absolute top-6 left-6 sm:top-12 sm:left-12 w-12 h-12 border-t-2 border-l-2 border-white/40"></div>
+        <div class="absolute top-6 right-6 sm:top-12 sm:right-12 w-12 h-12 border-t-2 border-r-2 border-white/40"></div>
+        <div class="absolute bottom-6 left-6 sm:bottom-12 sm:left-12 w-12 h-12 border-b-2 border-l-2 border-white/40"></div>
+        <div class="absolute bottom-6 right-6 sm:bottom-12 sm:right-12 w-12 h-12 border-b-2 border-r-2 border-white/40"></div>
+
+        <!-- Viewfinder Top UI -->
+        <div class="absolute top-8 sm:top-14 left-1/2 -translate-x-1/2 flex items-center gap-6 tracking-widest">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span class="text-red-500 font-bold">REC</span>
+            </div>
+            <span class="opacity-50">00:00:03:14</span>
+        </div>
+
+        <!-- Viewfinder Bottom UI -->
+        <div class="absolute bottom-8 sm:bottom-14 left-1/2 -translate-x-1/2 flex items-center gap-4 sm:gap-8 tracking-widest bg-dark/80 px-6 py-2 backdrop-blur-sm rounded-full border border-white/10 shadow-2xl">
+            <span class="opacity-50 hidden sm:block text-[10px]">RAW</span>
+            <span class="opacity-50 hidden sm:block text-[10px]">AWB</span>
+            <span>ISO <span id="vf-iso" class="inline-block w-[30px] text-right">100</span></span>
+            <span>F/<span id="vf-aperture" class="inline-block w-[24px] text-left">1.4</span></span>
+            <span>1/2000</span>
+            <span class="text-white font-bold text-sm w-[40px] text-right" id="loading-percent">0%</span>
+        </div>
+
+        <!-- Central Focus Ring UI -->
+        <div class="relative flex items-center justify-center w-[280px] h-[280px] sm:w-[400px] sm:h-[400px]">
+            <!-- Crosshairs -->
+            <div class="absolute inset-0 flex items-center justify-center opacity-20">
+                <div class="w-full h-[1px] bg-white"></div>
+                <div class="absolute h-full w-[1px] bg-white"></div>
+            </div>
+
+            <!-- Focus Matrix Dots -->
+            <div class="absolute flex gap-12 opacity-50">
+                <div class="w-1.5 h-1.5 border border-white/50"></div>
+                <div class="w-1.5 h-1.5 border border-white/50"></div>
+                <div class="w-1.5 h-1.5 border border-white/50"></div>
+            </div>
+            <div class="absolute flex gap-12 rotate-90 opacity-50">
+                <div class="w-1.5 h-1.5 border border-white/50"></div>
+                <div class="w-1.5 h-1.5 border border-white/50 invisible"></div>
+                <div class="w-1.5 h-1.5 border border-white/50"></div>
+            </div>
+
+            <!-- Active Focus Square -->
+            <div id="focus-square" class="w-12 h-12 sm:w-16 sm:h-16 border border-white/60 absolute transition-colors duration-200">
+                <div class="absolute -top-1 -left-1 w-2 h-2 border-t border-l border-white"></div>
+                <div class="absolute -top-1 -right-1 w-2 h-2 border-t border-r border-white"></div>
+                <div class="absolute -bottom-1 -left-1 w-2 h-2 border-b border-l border-white"></div>
+                <div class="absolute -bottom-1 -right-1 w-2 h-2 border-b border-r border-white"></div>
+            </div>
+
+            <!-- Rotating Technical Rings -->
+            <svg viewBox="0 0 200 200" class="w-full h-full absolute opacity-60">
+                <circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 4" class="origin-center animate-[spin_12s_linear_infinite]" />
+                <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="30 10 2 10" class="origin-center animate-[spin_8s_linear_infinite_reverse]" />
+                <circle cx="100" cy="100" r="65" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="1 3" class="origin-center animate-[spin_20s_linear_infinite]" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Shutter Animation Elements (Curtains & Flash) -->
+    <div id="shutter-top" class="fixed top-0 left-0 w-full h-1/2 bg-black z-[105] transform -translate-y-full"></div>
+    <div id="shutter-bottom" class="fixed bottom-0 left-0 w-full h-1/2 bg-black z-[105] transform translate-y-full"></div>
+    <div id="shutter-flash" class="fixed inset-0 bg-white opacity-0 pointer-events-none z-[110] mix-blend-screen"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 p-6 mix-blend-difference flex justify-between items-center text-white">
+        <a href="#" class="text-lg tracking-[0.2em] uppercase font-light interactive">A. Kowalski</a>
+        <div class="hidden md:flex gap-8 text-xs tracking-widest uppercase">
+            <a href="#portfolio" class="hover:text-gray-400 transition interactive">Portfolio</a>
+            <a href="#about" class="hover:text-gray-400 transition interactive">O mnie</a>
+            <a href="#services" class="hover:text-gray-400 transition interactive">Usługi</a>
+            <a href="#contact" class="hover:text-gray-400 transition interactive">Kontakt</a>
+        </div>
+        <button class="md:hidden text-xs tracking-widest uppercase interactive">Menu</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1551334787-21e6bd3ab135?q=80&w=2000&auto=format&fit=crop" alt="Hero Photography" class="w-full h-[120%] object-cover scale-110 opacity-70" id="hero-img">
+        </div>
+
+        <!-- Cinematic gradient overlay -->
+        <div class="absolute inset-0 bg-black/40 z-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-dark/80 via-dark/40 to-dark z-10"></div>
+
+        <div class="z-20 text-center flex flex-col items-center mt-20 px-4">
+            <h1 style="text-shadow: 0 10px 30px rgba(0,0,0,0.9);" class="text-6xl md:text-8xl lg:text-[10rem] font-medium leading-none tracking-tight font-serif mb-6 hero-title opacity-0 drop-shadow-2xl">
+                Poezja<br><span class="italic text-gray-300">Światła</span>
+            </h1>
+            <p style="text-shadow: 0 4px 15px rgba(0,0,0,0.9);" class="text-sm md:text-base tracking-[0.4em] uppercase font-light text-white/90 hero-sub opacity-0 drop-shadow-lg">
+                Ekskluzywna Fotografia & Dyrekcja Artystyczna
+            </p>
+
+            <a href="#portfolio" class="mt-16 text-xs tracking-widest uppercase border-2 border-white bg-white text-dark font-semibold px-10 py-5 hover:bg-transparent hover:text-white transition-all duration-300 interactive hero-cta opacity-0 drop-shadow-2xl">
+                Odkryj Galerie
+            </a>
+        </div>
+    </section>
+
+    <!-- Portfolio Gallery Section (Full Width Background) -->
+    <section id="portfolio" class="pt-32 pb-20 w-full bg-dark relative">
+        <div class="max-w-[1800px] mx-auto px-4 md:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-20 px-4">
+                <h2 class="text-5xl md:text-7xl font-serif text-white section-title">Wybrane <span class="italic text-gray-400">Prace</span></h2>
+                <p class="text-xs tracking-[0.2em] uppercase mt-4 md:mt-0 opacity-60">Przewiń aby zobaczyć</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-y-32 md:gap-y-40 md:gap-x-8 lg:gap-x-12">
+
+                <!-- Gallery Item 1 (Large) -->
+                <div class="col-span-1 md:col-span-8 gallery-item frame-3d interactive group">
+                    <div class="frame-content relative w-full h-[60vh] md:h-[80vh] img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1500&auto=format&fit=crop" class="parallax-img filter grayscale group-hover:grayscale-0 transition-all duration-1000" alt="Portret">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-transparent pointer-events-none mix-blend-overlay"></div>
+                    </div>
+                    <div class="mt-8 flex justify-between items-baseline px-2">
+                        <h3 class="font-serif text-3xl">Seria Noir</h3>
+                        <span class="text-xs uppercase tracking-widest opacity-50">Portret</span>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 2 (Small) -->
+                <div class="col-span-1 md:col-span-4 md:mt-48 gallery-item frame-3d interactive group">
+                    <div class="frame-content relative w-full h-[50vh] img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop" class="parallax-img filter grayscale group-hover:grayscale-0 transition-all duration-1000" alt="Produkt">
+                    </div>
+                    <div class="mt-8 flex justify-between items-baseline px-2">
+                        <h3 class="font-serif text-2xl">Minimalizm</h3>
+                        <span class="text-xs uppercase tracking-widest opacity-50">Produkt</span>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 3 (Medium) -->
+                <div class="col-span-1 md:col-span-5 gallery-item frame-3d interactive group">
+                    <div class="frame-content relative w-full h-[60vh] img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000&auto=format&fit=crop" class="parallax-img filter grayscale group-hover:grayscale-0 transition-all duration-1000" alt="Ślub">
+                    </div>
+                    <div class="mt-8 flex justify-between items-baseline px-2">
+                        <h3 class="font-serif text-2xl">Elegancja</h3>
+                        <span class="text-xs uppercase tracking-widest opacity-50">Ślub</span>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 4 (Large) -->
+                <div class="col-span-1 md:col-span-7 md:-mt-12 gallery-item frame-3d interactive group">
+                    <div class="frame-content relative w-full h-[70vh] img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=1200&auto=format&fit=crop" class="parallax-img filter grayscale group-hover:grayscale-0 transition-all duration-1000" alt="Event">
+                    </div>
+                    <div class="mt-8 flex justify-between items-baseline px-2">
+                        <h3 class="font-serif text-3xl">Symfonia Cieni</h3>
+                        <span class="text-xs uppercase tracking-widest opacity-50">Event</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section (Full Width Background) -->
+    <section id="about" class="py-32 relative bg-[#080808] w-full">
+        <div class="max-w-[1800px] mx-auto px-6 md:px-12 flex flex-col md:flex-row gap-16 md:gap-24 items-center">
+
+            <div class="w-full md:w-5/12 lg:w-4/12 relative frame-3d interactive">
+                <div class="absolute inset-0 border border-white/10 translate-x-4 translate-y-4 -z-10 transition-transform duration-500 hover:translate-x-6 hover:translate-y-6"></div>
+
+                <div class="frame-content aspect-[3/4] img-wrapper rounded-sm">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop" alt="Aleksander Kowalski" class="parallax-img filter sepia-[0.2]">
+                </div>
+            </div>
+
+            <div class="w-full md:w-7/12 lg:w-8/12 relative">
+                <h2 class="text-5xl md:text-6xl lg:text-7xl font-serif mb-10 leading-tight section-title text-white relative z-20 drop-shadow-2xl">
+                    Uchwycić <br><span class="italic text-gray-400">Niewidzialne.</span>
+                </h2>
+
+                <div class="space-y-6 text-lg md:text-xl font-normal text-white/95 leading-relaxed max-w-xl relative z-10">
+                    <p>
+                        Wierzę, że najlepsze fotografie to te, których nie widać, a które się czuje. Moje podejście opiera się na minimalizmie, naturalnym świetle i głębokiej empatii do fotografowanego obiektu.
+                    </p>
+                    <p>
+                        Od ponad dekady współpracuję z markami premium, artystami i wymagającymi klientami indywidualnymi, tworząc kadry, które zatrzymują czas z kinową precyzją.
+                    </p>
+                </div>
+
+                <div class="mt-12 relative z-10">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' fill='none' stroke='white' stroke-width='1'%3E%3Cpath d='M10,40 Q30,10 60,30 T110,30 T160,20' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Signature" class="w-32 opacity-80">
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Services Section (Full Width Background) -->
+    <section id="services" class="py-32 w-full bg-dark text-white relative">
+        <div class="max-w-[1800px] mx-auto px-6 md:px-12">
+            <h2 class="text-xs tracking-[0.3em] uppercase mb-20 text-white/50 border-b border-white/10 pb-4">Ekspertyza</h2>
+
+            <div class="flex flex-col relative group/container w-full">
+
+                <!-- Service Item 01 -->
+                <div class="group border-b border-white/10 py-12 relative cursor-pointer interactive">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between z-20 relative pointer-events-none">
+                        <div class="flex items-baseline gap-6 md:gap-12">
+                            <span class="font-mono text-sm opacity-30 group-hover:opacity-100 transition-opacity duration-300">01</span>
+                            <h3 class="text-4xl md:text-6xl font-serif text-white/50 group-hover:text-white transition-all duration-500 transform group-hover:translate-x-4 select-none">Fotografia Ślubna</h3>
+                        </div>
+                        <p class="text-sm tracking-widest uppercase opacity-50 group-hover:opacity-100 transition-opacity duration-500 mt-6 md:mt-0 flex items-center gap-4 text-white">
+                            Elegancja & Emocje
+                            <svg class="w-5 h-5 transform -rotate-45 group-hover:rotate-0 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </p>
+                    </div>
+                    <div class="absolute right-[5%] md:right-[15%] top-1/2 -translate-y-1/2 w-72 h-96 overflow-hidden opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -rotate-3 group-hover:rotate-0 transition-all duration-700 pointer-events-none z-0 hidden lg:block rounded-md shadow-2xl">
+                         <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-1000">
+                         <div class="absolute inset-0 bg-black/40"></div>
+                    </div>
+                </div>
+
+                <!-- Service Item 02 -->
+                <div class="group border-b border-white/10 py-12 relative cursor-pointer interactive">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between z-20 relative pointer-events-none">
+                        <div class="flex items-baseline gap-6 md:gap-12">
+                            <span class="font-mono text-sm opacity-30 group-hover:opacity-100 transition-opacity duration-300">02</span>
+                            <h3 class="text-4xl md:text-6xl font-serif text-white/50 group-hover:text-white transition-all duration-500 transform group-hover:translate-x-4 select-none">Sesje Portretowe</h3>
+                        </div>
+                        <p class="text-sm tracking-widest uppercase opacity-50 group-hover:opacity-100 transition-opacity duration-500 mt-6 md:mt-0 flex items-center gap-4 text-white">
+                            Autentyczność
+                            <svg class="w-5 h-5 transform -rotate-45 group-hover:rotate-0 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </p>
+                    </div>
+                    <div class="absolute right-[5%] md:right-[15%] top-1/2 -translate-y-1/2 w-72 h-96 overflow-hidden opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -rotate-3 group-hover:rotate-0 transition-all duration-700 pointer-events-none z-0 hidden lg:block rounded-md shadow-2xl">
+                         <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-1000 filter grayscale">
+                         <div class="absolute inset-0 bg-black/40"></div>
+                    </div>
+                </div>
+
+                <!-- Service Item 03 -->
+                <div class="group border-b border-white/10 py-12 relative cursor-pointer interactive">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between z-20 relative pointer-events-none">
+                        <div class="flex items-baseline gap-6 md:gap-12">
+                            <span class="font-mono text-sm opacity-30 group-hover:opacity-100 transition-opacity duration-300">03</span>
+                            <h3 class="text-4xl md:text-6xl font-serif text-white/50 group-hover:text-white transition-all duration-500 transform group-hover:translate-x-4 select-none">Edytoriale Mody</h3>
+                        </div>
+                        <p class="text-sm tracking-widest uppercase opacity-50 group-hover:opacity-100 transition-opacity duration-500 mt-6 md:mt-0 flex items-center gap-4 text-white">
+                            Awangarda
+                            <svg class="w-5 h-5 transform -rotate-45 group-hover:rotate-0 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </p>
+                    </div>
+                    <div class="absolute right-[5%] md:right-[15%] top-1/2 -translate-y-1/2 w-72 h-96 overflow-hidden opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -rotate-3 group-hover:rotate-0 transition-all duration-700 pointer-events-none z-0 hidden lg:block rounded-md shadow-2xl">
+                         <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-1000">
+                         <div class="absolute inset-0 bg-black/40"></div>
+                    </div>
+                </div>
+
+                <!-- Service Item 04 -->
+                <div class="group border-b border-white/10 py-12 relative cursor-pointer interactive">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between z-20 relative pointer-events-none">
+                        <div class="flex items-baseline gap-6 md:gap-12">
+                            <span class="font-mono text-sm opacity-30 group-hover:opacity-100 transition-opacity duration-300">04</span>
+                            <h3 class="text-4xl md:text-6xl font-serif text-white/50 group-hover:text-white transition-all duration-500 transform group-hover:translate-x-4 select-none">Kampanie Produktowe</h3>
+                        </div>
+                        <p class="text-sm tracking-widest uppercase opacity-50 group-hover:opacity-100 transition-opacity duration-500 mt-6 md:mt-0 flex items-center gap-4 text-white">
+                            Detal & Światło
+                            <svg class="w-5 h-5 transform -rotate-45 group-hover:rotate-0 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </p>
+                    </div>
+                    <div class="absolute right-[5%] md:right-[15%] top-1/2 -translate-y-1/2 w-72 h-96 overflow-hidden opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -rotate-3 group-hover:rotate-0 transition-all duration-700 pointer-events-none z-0 hidden lg:block rounded-md shadow-2xl">
+                         <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-1000">
+                         <div class="absolute inset-0 bg-black/40"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-40 bg-[#080808] relative w-full flex flex-col justify-center items-center border-t border-white/5">
+        <div class="max-w-5xl mx-auto px-6 w-full text-center relative z-20">
+
+            <p class="text-xs tracking-[0.4em] uppercase opacity-50 mb-16 font-medium">Bądźmy w kontakcie</p>
+
+            <div class="mb-24">
+                <a href="mailto:hello@kowalski.com" class="text-4xl md:text-6xl lg:text-[5rem] font-serif text-white transition-transform duration-500 hover:-skew-x-12 interactive inline-block origin-center">
+                    hello@kowalski.com
+                </a>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-16 text-xs tracking-widest uppercase font-medium text-white/60">
+                <a href="tel:+48123456789" class="hover:text-white transition-colors interactive pb-1 border-b border-transparent hover:border-white">+48 123 456 789</a>
+                <span class="hidden md:block opacity-20">/</span>
+                <a href="#" class="hover:text-white transition-colors interactive pb-1 border-b border-transparent hover:border-white">Instagram</a>
+                <span class="hidden md:block opacity-20">/</span>
+                <a href="#" class="hover:text-white transition-colors interactive pb-1 border-b border-transparent hover:border-white">Behance</a>
+            </div>
+
+        </div>
+
+        <div class="absolute bottom-0 w-full px-8 py-8 flex flex-col md:flex-row justify-between items-center text-[10px] tracking-[0.3em] uppercase text-white/20 gap-4 z-10">
+            <p>&copy; 2026 Aleksander Kowalski.</p>
+            <p>Wszelkie prawa zastrzeżone.</p>
+        </div>
+    </section>
+
+</body>
+</html>
