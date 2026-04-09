@@ -27,37 +27,38 @@ menuBtn.addEventListener('click', openMenu);
 menuClose.addEventListener('click', closeMenu);
 mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
 
-// --- Custom Cursor Logic ---
-const cursorDot = document.querySelector('.cursor-dot');
-const cursorOutline = document.querySelector('.cursor-outline');
-const interactives = document.querySelectorAll('.interactive, a, button');
+// --- Custom Cursor Logic (tylko na urządzeniach z myszą) ---
+const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 
-// Center cursors using GSAP to avoid conflicts with CSS transform
-gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
-gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
+if (isFinePointer) {
+    const cursorDot = document.querySelector('.cursor-dot');
+    const cursorOutline = document.querySelector('.cursor-outline');
+    const interactives = document.querySelectorAll('.interactive, a, button');
 
-// Używamy quickTo dla najwyższej wydajności kursora i uniknięcia konfliktów
-const xToDot = gsap.quickTo(cursorDot, "x", {duration: 0.1, ease: "power3"});
-const yToDot = gsap.quickTo(cursorDot, "y", {duration: 0.1, ease: "power3"});
-const xToOutline = gsap.quickTo(cursorOutline, "x", {duration: 0.3, ease: "power3"});
-const yToOutline = gsap.quickTo(cursorOutline, "y", {duration: 0.3, ease: "power3"});
+    gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
+    gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
 
-window.addEventListener('mousemove', (e) => {
-    xToDot(e.clientX);
-    yToDot(e.clientY);
-    xToOutline(e.clientX);
-    yToOutline(e.clientY);
+    const xToDot = gsap.quickTo(cursorDot, "x", {duration: 0.1, ease: "power3"});
+    const yToDot = gsap.quickTo(cursorDot, "y", {duration: 0.1, ease: "power3"});
+    const xToOutline = gsap.quickTo(cursorOutline, "x", {duration: 0.3, ease: "power3"});
+    const yToOutline = gsap.quickTo(cursorOutline, "y", {duration: 0.3, ease: "power3"});
 
-    // Subtle Lens Flare movement (3D lighting effect)
-    const xOffset = (e.clientX / window.innerWidth - 0.5) * 40;
-    const yOffset = (e.clientY / window.innerHeight - 0.5) * 40;
-    document.getElementById('lensFlare').style.transform = `translate(${xOffset}px, ${yOffset}px)`;
-});
+    window.addEventListener('mousemove', (e) => {
+        xToDot(e.clientX);
+        yToDot(e.clientY);
+        xToOutline(e.clientX);
+        yToOutline(e.clientY);
 
-interactives.forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-});
+        const xOffset = (e.clientX / window.innerWidth - 0.5) * 40;
+        const yOffset = (e.clientY / window.innerHeight - 0.5) * 40;
+        document.getElementById('lensFlare').style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+    });
+
+    interactives.forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+}
 
 // --- 3D Hover Effect for Frames ---
 const frames = document.querySelectorAll('.frame-3d');
