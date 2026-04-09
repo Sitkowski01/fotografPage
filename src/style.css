@@ -149,6 +149,28 @@ html, body {
     box-shadow: 0 30px 60px rgba(0,0,0,0.6);
 }
 
+/* Ukryj kursor na urządzeniach dotykowych niezależnie od breakpointu */
+@media (pointer: coarse) {
+    .cursor-dot,
+    .cursor-outline {
+        display: none !important;
+    }
+}
+
+/* Usługi: na mobilce (brak hover) tytuły i numery zawsze widoczne */
+@media (hover: none) {
+    #services .group h3 {
+        color: white !important;
+        transform: none !important;
+    }
+    #services .group .font-mono {
+        opacity: 0.5 !important;
+    }
+    #services .group > div > div > p {
+        opacity: 0.7 !important;
+    }
+}
+
 /* Hide scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
