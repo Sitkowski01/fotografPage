@@ -12,17 +12,16 @@ if (!isFinePointer) {
     const serviceGroups = document.querySelectorAll('#services .group');
 
     serviceGroups.forEach(group => {
-        group.addEventListener('click', () => {
+        group.addEventListener('click', (e) => {
+            e.stopPropagation();
             const isActive = group.classList.contains('is-active');
             serviceGroups.forEach(g => g.classList.remove('is-active'));
             if (!isActive) group.classList.add('is-active');
         });
     });
 
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('#services .group')) {
-            serviceGroups.forEach(g => g.classList.remove('is-active'));
-        }
+    document.addEventListener('click', () => {
+        serviceGroups.forEach(g => g.classList.remove('is-active'));
     });
 }
 
