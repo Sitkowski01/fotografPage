@@ -9,9 +9,11 @@ html, body {
     width: 100%;
 }
 
-/* Wymuszenie ukrycia systemowego kursora na wszystkich elementach */
-* {
-    cursor: none !important;
+/* Ukrycie systemowego kursora tylko na urządzeniach z myszą */
+@media (pointer: fine) {
+    * {
+        cursor: none !important;
+    }
 }
 
 ::selection {

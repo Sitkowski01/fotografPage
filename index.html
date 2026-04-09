@@ -117,8 +117,17 @@
             <a href="#services" class="hover:text-gray-400 transition interactive">Usługi</a>
             <a href="#contact" class="hover:text-gray-400 transition interactive">Kontakt</a>
         </div>
-        <button class="md:hidden text-xs tracking-widest uppercase interactive">Menu</button>
+        <button id="menu-btn" class="md:hidden text-xs tracking-widest uppercase interactive">Menu</button>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-[#050505]/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-12 opacity-0 pointer-events-none transition-opacity duration-500 md:hidden">
+        <button id="menu-close" class="absolute top-6 right-6 text-xs tracking-widest uppercase text-white/60 hover:text-white transition interactive">Zamknij</button>
+        <a href="#portfolio" class="mobile-menu-link text-4xl font-serif text-white/70 hover:text-white transition-colors duration-300 interactive">Portfolio</a>
+        <a href="#about" class="mobile-menu-link text-4xl font-serif text-white/70 hover:text-white transition-colors duration-300 interactive">O mnie</a>
+        <a href="#services" class="mobile-menu-link text-4xl font-serif text-white/70 hover:text-white transition-colors duration-300 interactive">Usługi</a>
+        <a href="#contact" class="mobile-menu-link text-4xl font-serif text-white/70 hover:text-white transition-colors duration-300 interactive">Kontakt</a>
+    </div>
 
     <!-- Hero Section -->
     <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
