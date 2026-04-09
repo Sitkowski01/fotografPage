@@ -5,6 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 // Register GSAP ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+const isFinePointer = window.matchMedia('(pointer: fine)').matches;
+
 // --- Services: obsługa tapnięcia na mobilce ---
 if (!isFinePointer) {
     const serviceGroups = document.querySelectorAll('#services .group');
@@ -47,8 +49,6 @@ menuClose.addEventListener('click', closeMenu);
 mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
 
 // --- Custom Cursor Logic (tylko na urządzeniach z myszą) ---
-const isFinePointer = window.matchMedia('(pointer: fine)').matches;
-
 if (isFinePointer) {
     const cursorDot = document.querySelector('.cursor-dot');
     const cursorOutline = document.querySelector('.cursor-outline');
