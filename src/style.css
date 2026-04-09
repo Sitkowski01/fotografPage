@@ -157,17 +157,30 @@ html, body {
     }
 }
 
-/* Usługi: na mobilce (brak hover) tytuły i numery zawsze widoczne */
+/* Usługi na mobilce — zarządzane przez JS klasą .is-active */
 @media (hover: none) {
     #services .group h3 {
-        color: white !important;
+        color: rgba(255,255,255,0.5);
         transform: none !important;
+        transition: color 0.3s, transform 0.3s;
+    }
+    #services .group.is-active h3 {
+        color: white !important;
+        transform: translateX(1rem) !important;
     }
     #services .group .font-mono {
-        opacity: 0.5 !important;
+        opacity: 0.3;
+        transition: opacity 0.3s;
+    }
+    #services .group.is-active .font-mono {
+        opacity: 1 !important;
     }
     #services .group > div > div > p {
-        opacity: 0.7 !important;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+    }
+    #services .group.is-active > div > div > p {
+        opacity: 1 !important;
     }
 }
 
